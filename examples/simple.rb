@@ -1,10 +1,13 @@
-cron '0/10 * * * ? *', as: :publish_unpublish do
-  #Entry.publish
-  ##Entry.unpublish
-  puts "publish_unpublish"
+cron '* * * * ? *', as: :publish_unpublish do
+  Entry.publish
+  Entry.unpublish
+end
+
+cron '0/2 * * * ? *' do
+  Entry.publish
+  Entry.unpublish
 end
 
 rate '1 day', desc: '契約更新' do
-  #Subscription.recontract_all
-  puts "契約更新"
+  Subscription.recontract_all
 end

@@ -2,6 +2,7 @@
 
 require 'aws-sdk'
 require 'digest/md5'
+require 'pp'
 
 module Kyklos
   class CLI
@@ -39,16 +40,20 @@ module Kyklos
       def put_job(job_id, job)
         rule = {
             name: eventname(job_id),
-            event_pattern: nil,
-            state: 'ENABLED',
+            event_pattern: '',
+            state: 'DISABLED',
             description: job.description,
             schedule_expression: job.schedule_expression,
         }
-        cloudwatchevents.put_rule(rule)
+        rule_arn = cloudwatchevents.put_rule(rule).rule_arn
+        targets = adapter.cloudwatchevents_targets(
+            job_id: job_id,
+            rule_arn: rule_arn)
         cloudwatchevents.put_targets(
             rule: rule[:name],
-            targets: adapter.cloudwatchevents_targets(job_id)
+            targets: targets
         )
+        cloudwatchevents.enable_rule(name: rule[:name])
       end
 
       def prefix
