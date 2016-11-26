@@ -55,6 +55,12 @@ CODE
     assert_instance_of(Kyklos::Job::Cron, job_list.jobs[:cron_a])
   end
 
+  def test_desc_option
+    job_list = Kyklos::JobList.new
+    job_id = job_list.cron('* * * * * *', desc: 'DESCRIPTION'){ }
+    assert_equal('DESCRIPTION', job_list.jobs[job_id].description)
+  end
+
   def test_bracket
     job_list = Kyklos::JobList.new
     job_id = job_list.rate('1 minutes'){ }

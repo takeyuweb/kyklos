@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 module Kyklos
   class JobList
+    include Enumerable
 
     attr_reader :jobs
 
@@ -13,29 +14,33 @@ module Kyklos
       @jobs[normalize_id(id)]
     end
 
+    def each(&block)
+      @jobs.each(&block)
+    end
+
     def run(id)
       self[id].run
     end
 
-    def rate(fields, as: nil, &block)
-      add_job(Kyklos::Job::Rate, fields, block, as: as)
+    def rate(expression, as: nil, desc: nil, &block)
+      add_job(Kyklos::Job::Rate, expression, block, as: as, desc: desc)
     end
 
-    def cron(fields, as: nil, &block)
-      add_job(Kyklos::Job::Cron, fields, block, as: as)
+    def cron(expression, as: nil, desc: nil, &block)
+      add_job(Kyklos::Job::Cron, expression, block, as: as, desc: desc)
     end
 
     private
 
-      def add_job(klass, fields, block, as:)
-        id = as || job_id(klass, fields)
+      def add_job(klass, expression, block, as:, desc:)
+        id = as || job_id(klass, expression)
         normalized_id = normalize_id(id)
-        @jobs[normalized_id] = klass.new(fields, block)
+        @jobs[normalized_id] = klass.new(expression, block, description: desc)
         normalized_id
       end
 
-      def job_id(klass, fields)
-        [klass, fields].map(&:to_s).join('#')
+      def job_id(klass, expression)
+        [klass, expression].map(&:to_s).join('#')
       end
 
       def normalize_id(id)

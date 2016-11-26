@@ -1,8 +1,6 @@
 # Kyklos
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/kyklos`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+AWS Lambda + Amazon CloudWatch Events meets Ruby
 
 ## Installation
 
@@ -14,25 +12,80 @@ gem 'kyklos'
 
 And then execute:
 
-    $ bundle
+```sh
+$ bundle
+```
 
 Or install it yourself as:
 
-    $ gem install kyklos
+```sh
+$ gem install kyklos
+```
 
 ## Usage
 
-TODO: Write usage instructions here
+### 1. Write your config/schedule.rb
 
-## Development
+```sh
+$ vi config/schedule.rb
+```
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+#### Example schedule.rb file
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+```ruby
+cron '0/10 * * * ? *' do
+  Entry.publish_all
+  Entry.unpublish_all
+end
+
+rate '10 minutes' do
+  Temporary.destroy_all
+end
+
+rate '1 day', as: :recontraction do
+  Subscription.recontract_all
+end
+
+rate '1 day', as: :journalize_events do
+  Event.journalize
+end
+```
+
+### 2. Deploy
+
+```sh
+run `kyklos -c config/schedule.rb` --function_adapter=shoryuken --function_adapter_args=queue_name
+```
+
+#### AWS認証情報について
+
+##### 環境変数として渡す
+
+```sh
+$ AWS_ACCESS_KEY_ID=xxxxxxxxxxxxxxxxxxxx \
+> AWS_SECRET_ACCESS_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx \
+> AWS_REGION=ap-northeast-1 \
+> kyklos -c config/schedule.rb
+```
+
+##### `aws configure`を使う
+
+```sh
+$ aws configure
+AWS Access Key ID [None]: xxxxxxxxxxxxxxxxxxxx
+AWS Secret Access Key [None]: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+Default region name [None]: ap-northeast-1
+Default output format [None]: json
+$ ls ~/.aws
+config  credentials
+$ kyklos -c config/schedule.rb
+```
+
+#### A
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/kyklos. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+Bug reports and pull requests are welcome on GitHub at https://github.com/takeyuweb/kyklos. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
 
 ## License

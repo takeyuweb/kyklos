@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'optparse'
+require 'kyklos'
+require 'kyklos/version'
+
+options = {}
+OptionParser.new do |opt|
+  opt.version = Kyklos::VERSION
+  opt.on('-c', '--config CONFIG') do |config|
+    options[:config_path] = config
+  end
+  opt.on('--adapter ADAPTER_NAME') do |adapter|
+    options[:adapter] = adapter
+  end
+  opt.on('--adapter_args arg1,args,arg3...', Array) do |adapter_args|
+    options[:adapter_args] = adapter_args
+  end
+  opt.on('--identifier IDENTIFIER') do |identifier|
+    options[:identifier] = identifier
+  end
+  opt.parse!(ARGV)
+end
+
+Kyklos::CLI.new(options).deploy
