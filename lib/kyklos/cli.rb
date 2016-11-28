@@ -55,6 +55,7 @@ module Kyklos
         rule = cloudwatchevents.describe_rule(name: rule_params[:name])
         targets = adapter.assign_cloudwatchevents(
             job_id: job_id,
+            rule_name_prefix: rule_name_prefix,
             rule: rule)
         cloudwatchevents.put_targets(
             rule: rule.name,
@@ -64,7 +65,7 @@ module Kyklos
       end
 
       def remove_job(rule)
-        adapter.unassign_cloudwatchevents(rule: rule)
+        adapter.unassign_cloudwatchevents(rule_name_prefix: rule_name_prefix, rule: rule)
 
         target_ids = find_targets(rule.name).map(&:id)
         unless target_ids.empty?
@@ -73,12 +74,12 @@ module Kyklos
         cloudwatchevents.delete_rule(name: rule.name)
       end
 
-      def prefix
+      def rule_name_prefix
         "kyslos-#{"#{@identifier}/#{Digest::MD5.hexdigest(@identifier)}".sum}-"
       end
 
       def eventname(job_id)
-        "#{prefix}#{Digest::MD5.hexdigest(job_id.to_s)}"
+        "#{rule_name_prefix}#{Digest::MD5.hexdigest(job_id.to_s)}"
       end
 
       def eventnames
@@ -93,7 +94,7 @@ module Kyklos
       def find_rules
         list_rules = ->(next_token) do
           resp = cloudwatchevents.
-              list_rules(name_prefix: prefix,
+              list_rules(name_prefix: rule_name_prefix,
                          next_token: next_token)
           if resp.next_token
             resp.rules + list_rules.call(next_token)
