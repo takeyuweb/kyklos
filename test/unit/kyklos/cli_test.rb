@@ -2,6 +2,8 @@
 require 'test_helper'
 require 'tempfile'
 
+# TODO: リソース操作のテスト
+
 class CLITest < Test::Unit::TestCase
 
   setup do
@@ -12,11 +14,18 @@ CODE
   end
 
   def test_initialize
-    assert_instance_of(Kyklos::CLI, Kyklos::CLI.new(@config.path))
+    assert_instance_of(Kyklos::CLI, Kyklos::CLI.new(config_path: @config.path, adapter: 'shoryuken'))
   end
 
   def test_deploy
-    cli = Kyklos::CLI.new(@config.path)
+    cli = Kyklos::CLI.new(config_path: @config.path, adapter: 'shoryuken')
+    Aws.config[:cloudwatchevents] = {
+        stub_responses: {
+            list_rules: {
+                rules: []
+            }
+        }
+    }
     cli.deploy
   end
 

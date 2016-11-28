@@ -2,7 +2,8 @@
 
 require 'aws-sdk'
 require 'digest/md5'
-require 'pp'
+
+# TODO: Aws SDKのラッパークラスを書いてテストしやすくする
 
 module Kyklos
   class CLI

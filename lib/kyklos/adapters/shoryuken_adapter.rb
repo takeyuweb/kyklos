@@ -13,6 +13,9 @@
 #
 # $ bundle exec shoryuken -r ./kyklos_worker.rb -C shoryuken.yml
 
+# TODO: Aws SDKのラッパークラスを書いてテストしやすくする
+# TODO: ShoryukenAdapter をgemに分離
+
 require 'json'
 require 'aws-sdk'
 require 'digest/md5'
