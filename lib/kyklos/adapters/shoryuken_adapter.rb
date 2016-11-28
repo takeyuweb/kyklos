@@ -29,7 +29,7 @@ module Kyklos
       end
 
       def cloudwatchevents_targets(job_id:, rule_arn:)
-        add_statemewnt(rule_arn)
+        update_queue_policy(job_id, rule_arn)
         [
             {
                 id: target_id(job_id),
@@ -55,7 +55,7 @@ module Kyklos
           resp.attributes['QueueArn']
         end
 
-        def add_statemewnt(rule_arn)
+        def update_queue_policy(job_id, rule_arn)
           policy_str = sqs.get_queue_attributes(
               queue_url: queue_url,
               attribute_names: ['Policy']
@@ -69,8 +69,8 @@ module Kyklos
                 'Statement'=> []
             }
           end
-          new_statemewnt = {
-              'Sid' => 'TrustCWEToSendEventsToMyQueue',
+          new_statement = {
+              'Sid' => job_id.to_s,
               'Effect' => 'Allow',
               'Principal' => {
                   "AWS" => '*'
@@ -83,7 +83,7 @@ module Kyklos
                   }
               }
           }
-          policy['Statement'].push(new_statemewnt)
+          policy['Statement'] = add_statement(policy['Statement'], new_statement)
 
           sqs.set_queue_attributes(
               queue_url: queue_url,
@@ -91,6 +91,16 @@ module Kyklos
                   'Policy' =>  policy.to_json,
               },
           )
+        end
+
+        def add_statement(statements, new_sttement)
+          index = statements.find_index{|statement| statement['Sid'] == new_sttement['Sid'] }
+          if index
+            statements[index] = new_sttement
+          else
+            statements.push(new_sttement)
+          end
+          statements
         end
 
         def sqs
