@@ -1,6 +1,6 @@
 # Kyklos
 
-AWS Lambda + Amazon CloudWatch Events meets Ruby
+You can use the Amazon CloudWatch Events to schedule jobs on Ruby.
 
 ## Installation
 
@@ -54,7 +54,7 @@ end
 ### 2. Deploy
 
 ```sh
-run `kyklos -c config/schedule.rb` --function_adapter=shoryuken --function_adapter_args=queue_name
+ bundle exec ruby bin/kyklos -c config/schedule.rb --adapter shoryuken --adapter_args=https://sqs.ap-northeast-1.amazonaws.com/accountid/queue_name
 ```
 
 #### AWS認証情報について
@@ -81,7 +81,34 @@ config  credentials
 $ kyklos -c config/schedule.rb
 ```
 
-#### A
+### 3. Shoryuken
+
+#### 設定
+
+```sh
+$ vi kyklos_worker.rb
+```
+```ruby
+require 'kyklos'
+Kyklos::Adapters::ShoryukenAdapter::Worker.config_path = 'config/schedule.rb'
+Shoryuken.register_worker 'queue_name', Kyklos::Adapters::ShoryukenAdapter::Worker
+```
+
+```sh
+$ vi shoryuken.yml
+```
+```yaml
+concurrency: 25
+delay: 25
+queues:
+     - [queue_name, 1]
+```
+
+#### ワーカーを開始
+
+```sh
+$ bundle exec shoryuken -r ./kyklos_worker.rb -C shoryuken.yml
+```
 
 ## Contributing
 

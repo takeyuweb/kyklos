@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Yuichi Takeuchi']
   spec.email         = ['info@takeyu-web.com']
 
-  spec.summary       = %q{AWS Lambda + Amazon CloudWatch Events meets Ruby}
+  spec.summary       = %q{You can use the Amazon CloudWatch Events to schedule jobs on Ruby.}
   spec.homepage      = 'https://github.com/takeyuweb/kyklos/'
   spec.license       = 'MIT'
 
