@@ -28,8 +28,8 @@ module Kyklos
         @queue_url = args[0]
       end
 
-      def cloudwatchevents_targets(job_id:, rule_arn:)
-        update_queue_policy(job_id, rule_arn)
+      def assign_cloudwatchevents(job_id:, rule:)
+        assign_queue_policy(job_id, rule.arn)
         [
             {
                 id: target_id(job_id),
@@ -39,6 +39,10 @@ module Kyklos
                 }.to_json
             }
         ]
+      end
+
+      def unassign_cloudwatchevents(rule:)
+        unassign_queue_policy(rule.arn)
       end
 
       private
@@ -55,20 +59,8 @@ module Kyklos
           resp.attributes['QueueArn']
         end
 
-        def update_queue_policy(job_id, rule_arn)
-          policy_str = sqs.get_queue_attributes(
-              queue_url: queue_url,
-              attribute_names: ['Policy']
-          ).attributes['Policy']
-
-          policy = JSON.load(policy_str)
-          unless policy
-            policy = {
-                'Version' => '2012-10-17',
-                'Id' => "#{target_arn}/SQSDefaultPolicy",
-                'Statement'=> []
-            }
-          end
+        def assign_queue_policy(job_id, rule_arn)
+          policy = get_queue_policy
           new_statement = {
               'Sid' => job_id.to_s,
               'Effect' => 'Allow',
@@ -93,6 +85,23 @@ module Kyklos
           )
         end
 
+        def get_queue_policy
+          policy_str = sqs.get_queue_attributes(
+              queue_url: queue_url,
+              attribute_names: ['Policy']
+          ).attributes['Policy']
+
+          policy = JSON.load(policy_str)
+          unless policy
+            policy = {
+                'Version' => '2012-10-17',
+                'Id' => "#{target_arn}/SQSDefaultPolicy",
+                'Statement'=> []
+            }
+          end
+          policy
+        end
+
         def add_statement(statements, new_sttement)
           index = statements.find_index{|statement| statement['Sid'] == new_sttement['Sid'] }
           if index
@@ -101,6 +110,34 @@ module Kyklos
             statements.push(new_sttement)
           end
           statements
+        end
+
+        def unassign_queue_policy(rule_arn)
+          policy = get_queue_policy
+          policy['Statement'] = policy['Statement'].reject do |statement|
+            statement['Effect'] == 'Allow' &&
+                statement['Action'] == 'sqs:SendMessage' &&
+                statement['Resource'] == target_arn &&
+                statement['Condition'] &&
+                statement['Condition']['ArnEquals'] &&
+                statement['Condition']['ArnEquals']['aws:SourceArn'] == rule_arn
+          end
+
+          if policy['Statement'].empty?
+            sqs.set_queue_attributes(
+                queue_url: queue_url,
+                attributes: {
+                    'Policy' =>  '',
+                },
+            )
+          else
+            sqs.set_queue_attributes(
+                queue_url: queue_url,
+                attributes: {
+                    'Policy' =>  policy.to_json,
+                },
+            )
+          end
         end
 
         def sqs

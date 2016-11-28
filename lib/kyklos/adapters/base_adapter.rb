@@ -8,7 +8,11 @@ module Kyklos
 
       end
 
-      def cloudwatchevents_targets(job_id)
+      def assign_cloudwatchevents(job_id:, rule:)
+        raise NotImplementedError
+      end
+
+      def unassign_cloudwatchevents(rule:)
         raise NotImplementedError
       end
 
