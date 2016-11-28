@@ -65,7 +65,7 @@ end
 $ AWS_ACCESS_KEY_ID=xxxxxxxxxxxxxxxxxxxx \
 > AWS_SECRET_ACCESS_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx \
 > AWS_REGION=ap-northeast-1 \
-> kyklos -c config/schedule.rb
+> kyklos -c config/schedule.rb --adapter shoryuken --adapter_args=https://sqs.ap-northeast-1.amazonaws.com/accountid/queue_name
 ```
 
 ##### `aws configure`を使う
@@ -78,7 +78,7 @@ Default region name [None]: ap-northeast-1
 Default output format [None]: json
 $ ls ~/.aws
 config  credentials
-$ kyklos -c config/schedule.rb
+$ kyklos -c config/schedule.rb --adapter shoryuken --adapter_args=https://sqs.ap-northeast-1.amazonaws.com/accountid/queue_name
 ```
 
 ### 3. Shoryuken
