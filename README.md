@@ -54,7 +54,7 @@ end
 ### 2. Deploy
 
 ```sh
- bundle exec ruby bin/kyklos -c config/schedule.rb --adapter shoryuken --adapter_args=https://sqs.ap-northeast-1.amazonaws.com/accountid/queue_name
+ bundle exec kyklos -c config/schedule.rb --adapter shoryuken --adapter_args=https://sqs.ap-northeast-1.amazonaws.com/accountid/queue_name
 ```
 
 #### AWS認証情報について
