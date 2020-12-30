@@ -33,15 +33,30 @@ module Kyklos
 
       def assign_cloudwatchevents(job_id:, rule_name_prefix:, rule:)
         assign_queue_policy(job_id, rule_name_prefix, rule.arn)
-        [
+        if fifo_target?
+          [
             {
                 id: target_id(job_id),
                 arn: target_arn,
                 input: {
                     job_id: job_id
-                }.to_json
+                }.to_json,
+                sqs_parameters: {
+                  message_group_id: "group"
+                }
             }
         ]
+        else
+          [
+              {
+                  id: target_id(job_id),
+                  arn: target_arn,
+                  input: {
+                      job_id: job_id
+                  }.to_json
+              }
+          ]
+        end
       end
 
       private
@@ -56,6 +71,10 @@ module Kyklos
               attribute_names: ['QueueArn']
           )
           resp.attributes['QueueArn']
+        end
+
+        def fifo_target?
+          target_arn.end_with?('.fifo')
         end
 
         def assign_queue_policy(job_id, rule_name_prefix, rule_arn)
