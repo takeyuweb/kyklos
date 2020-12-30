@@ -17,7 +17,7 @@
 # TODO: ShoryukenAdapter をgemに分離
 
 require 'json'
-require 'aws-sdk'
+require 'aws-sdk-sqs'
 require 'digest/md5'
 require 'shoryuken'
 

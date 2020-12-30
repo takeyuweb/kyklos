@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'aws-sdk'
+require 'aws-sdk-cloudwatchevents'
 require 'digest/md5'
 
 # TODO: Aws SDKのラッパークラスを書いてテストしやすくする

@@ -18,7 +18,8 @@ Gem::Specification.new do |spec|
   spec.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'aws-sdk'
+  spec.add_dependency 'aws-sdk-cloudwatchevents'
+  spec.add_dependency 'aws-sdk-sqs'
   spec.add_dependency 'shoryuken'
 
   spec.add_development_dependency 'bundler', '~> 1.13'
