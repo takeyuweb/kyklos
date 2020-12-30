@@ -34,8 +34,9 @@ module Kyklos
 
       def add_job(klass, expression, block, as:, desc:)
         id = as || job_id(klass, expression)
+        description = desc || as
         normalized_id = normalize_id(id)
-        @jobs[normalized_id] = klass.new(expression, block, description: desc)
+        @jobs[normalized_id] = klass.new(expression, block, description: description)
         normalized_id
       end
 
