@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'test_helper'
 
-class KyklosTest < Test::Unit::TestCase
+class KyklosTest < MiniTest::Test
 
   # Called before every test method runs. Can be used
   # to set up fixture information.

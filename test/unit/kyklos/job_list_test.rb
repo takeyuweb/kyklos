@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 require 'test_helper'
 
-class JobListTest < Test::Unit::TestCase
+class JobListTest < MiniTest::Test
 
-  setup do
+  def setup
     @schedule = <<'CODE'
 rate '1 minutes' do
   puts 'Rate'
@@ -12,10 +12,6 @@ cron '* * * * * *' do
   puts 'Cron'
 end
 CODE
-  end
-
-  teardown do
-    # Do nothing
   end
 
   def test_initialize_without_code

@@ -10,4 +10,5 @@ Aws.config.update(
     credentials: Aws::Credentials.new('DUMMY', 'DUMMY')
 )
 
-require 'test/unit'
+require 'minitest/autorun'
+require 'minitest/stub_any_instance'
