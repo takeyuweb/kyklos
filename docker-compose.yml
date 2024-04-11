@@ -1,0 +1,15 @@
+version: "3"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - DIR=/src
+    stdin_open: true
+    tty: true
+    volumes:
+      - .:/src
+    user: ${ARG_USER:-ruby}
+    command: sleep infinity

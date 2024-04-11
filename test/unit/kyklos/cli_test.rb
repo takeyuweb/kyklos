@@ -4,9 +4,9 @@ require 'tempfile'
 
 # TODO: リソース操作のテスト
 
-class CLITest < Test::Unit::TestCase
+class CLITest < MiniTest::Test
 
-  setup do
+  def setup
     @config = Tempfile.open(%W(schedule .rb))
     @config.write <<'CODE'
 # Do nothing
